@@ -34,8 +34,11 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomClient = void 0;
+exports.createRoomClient = createRoomClient;
+exports.createRoomClientWithConfig = createRoomClientWithConfig;
 const livekit_client_1 = require("livekit-client");
 const logger_1 = require("../utils/logger");
+const config_1 = require("../utils/config");
 /**
  * Enhanced LiveKit room client with additional functionality
  */
@@ -221,4 +224,40 @@ class RoomClient extends livekit_client_1.Room {
     }
 }
 exports.RoomClient = RoomClient;
+/**
+ * Create a new LiveKit room client with automatic configuration
+ * @returns A configured LiveKitRoom instance
+ */
+function createRoomClient() {
+    try {
+        // Validate environment variables
+        config_1.Config.validateEnvironment();
+        // Get configuration from environment
+        const config = config_1.Config.getLiveKitConfig();
+        // Create and return the room client
+        const roomClient = new RoomClient(config);
+        logger_1.Logger.info('WebRTC client SDK initialized successfully');
+        return roomClient;
+    }
+    catch (error) {
+        logger_1.Logger.error('Failed to create room client', error);
+        throw new Error(`Failed to initialize WebRTC client: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
+/**
+ * Create a room client with custom configuration
+ * @param config Custom configuration options
+ * @returns A configured LiveKitRoom instance
+ */
+function createRoomClientWithConfig(config) {
+    try {
+        const roomClient = new RoomClient(config);
+        logger_1.Logger.info('WebRTC client SDK initialized with custom config');
+        return roomClient;
+    }
+    catch (error) {
+        logger_1.Logger.error('Failed to create room client with custom config', error);
+        throw new Error(`Failed to initialize WebRTC client: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+}
 //# sourceMappingURL=RoomClient.js.map

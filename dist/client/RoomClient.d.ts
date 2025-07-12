@@ -61,4 +61,15 @@ export declare class RoomClient extends Room implements LiveKitRoom {
         videoTracks: import("livekit-client").RemoteTrackPublication[];
     }[];
 }
+/**
+ * Create a new LiveKit room client with automatic configuration
+ * @returns A configured LiveKitRoom instance
+ */
+export declare function createRoomClient(): LiveKitRoom;
+/**
+ * Create a room client with custom configuration
+ * @param config Custom configuration options
+ * @returns A configured LiveKitRoom instance
+ */
+export declare function createRoomClientWithConfig(config: RoomClientConfig): LiveKitRoom;
 //# sourceMappingURL=RoomClient.d.ts.map

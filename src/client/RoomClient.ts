@@ -9,6 +9,7 @@ import {
 } from 'livekit-client';
 import { LiveKitRoom, RoomConnectionParams, RoomClientConfig } from '../types/index';
 import { Logger } from '../utils/logger';
+import { Config } from '../utils/config';
 
 /**
  * Enhanced LiveKit room client with additional functionality
@@ -219,5 +220,45 @@ export class RoomClient extends Room implements LiveKitRoom {
       audioTracks: Array.from(participant.audioTrackPublications.values()),
       videoTracks: Array.from(participant.videoTrackPublications.values())
     }));
+  }
+}
+
+/**
+ * Create a new LiveKit room client with automatic configuration
+ * @returns A configured LiveKitRoom instance
+ */
+export function createRoomClient(): LiveKitRoom {
+  try {
+    // Validate environment variables
+    Config.validateEnvironment();
+
+    // Get configuration from environment
+    const config: RoomClientConfig = Config.getLiveKitConfig();
+
+    // Create and return the room client
+    const roomClient = new RoomClient(config);
+    
+    Logger.info('WebRTC client SDK initialized successfully');
+    
+    return roomClient;
+  } catch (error) {
+    Logger.error('Failed to create room client', error as Error);
+    throw new Error(`Failed to initialize WebRTC client: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Create a room client with custom configuration
+ * @param config Custom configuration options
+ * @returns A configured LiveKitRoom instance
+ */
+export function createRoomClientWithConfig(config: RoomClientConfig): LiveKitRoom {
+  try {
+    const roomClient = new RoomClient(config);
+    Logger.info('WebRTC client SDK initialized with custom config');
+    return roomClient;
+  } catch (error) {
+    Logger.error('Failed to create room client with custom config', error as Error);
+    throw new Error(`Failed to initialize WebRTC client: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
