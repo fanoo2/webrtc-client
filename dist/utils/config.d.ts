@@ -27,4 +27,3 @@ export declare class Config {
      */
     static validateEnvironment(): void;
 }
-//# sourceMappingURL=config.d.ts.map

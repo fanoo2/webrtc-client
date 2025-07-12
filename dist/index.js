@@ -34,4 +34,3 @@ Object.defineProperty(exports, "Logger", { enumerable: true, get: function () { 
 function setLogLevel(level) {
     logger_1.Logger.setLogLevel(level);
 }
-//# sourceMappingURL=index.js.map

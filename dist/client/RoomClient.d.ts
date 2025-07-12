@@ -72,4 +72,3 @@ export declare function createRoomClient(): LiveKitRoom;
  * @returns A configured LiveKitRoom instance
  */
 export declare function createRoomClientWithConfig(config: RoomClientConfig): LiveKitRoom;
-//# sourceMappingURL=RoomClient.d.ts.map

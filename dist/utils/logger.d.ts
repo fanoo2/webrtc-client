@@ -28,4 +28,3 @@ export declare class Logger {
      */
     private static shouldLog;
 }
-//# sourceMappingURL=logger.d.ts.map

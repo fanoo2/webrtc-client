@@ -9,4 +9,3 @@ import { Logger } from './utils/logger';
  */
 export declare function setLogLevel(level: 'debug' | 'info' | 'warn' | 'error'): void;
 export { Logger };
-//# sourceMappingURL=index.d.ts.map

@@ -260,4 +260,3 @@ function createRoomClientWithConfig(config) {
         throw new Error(`Failed to initialize WebRTC client: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
 }
-//# sourceMappingURL=RoomClient.js.map

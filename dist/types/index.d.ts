@@ -47,4 +47,3 @@ export interface RoomEvents {
     'participant-left': (participantId: string) => void;
     'error': (error: Error) => void;
 }
-//# sourceMappingURL=index.d.ts.map

@@ -53,4 +53,3 @@ class Logger {
 }
 exports.Logger = Logger;
 Logger.logLevel = 'info';
-//# sourceMappingURL=logger.js.map
