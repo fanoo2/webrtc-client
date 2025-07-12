@@ -1,0 +1,49 @@
+{
+  "name": "@org/webrtc-client",
+  "version": "1.0.0",
+  "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video and audio communication",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node test-sdk.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "webrtc",
+    "livekit",
+    "video",
+    "audio",
+    "realtime",
+    "typescript",
+    "sdk"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/webrtc-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/webrtc-client/issues"
+  },
+  "homepage": "https://github.com/your-org/webrtc-client#readme",
+  "peerDependencies": {
+    "livekit-client": "^2.15.2"
+  },
+  "devDependencies": {
+    "livekit-client": "^2.15.2",
+    "livekit-server-sdk": "^2.13.1",
+    "typescript": "^5.8.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^24.0.13"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
