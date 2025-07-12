@@ -1,12 +1,8 @@
 {
   "name": "@fanno/webrtc-client",
-  "version": "1.0.1",
-  "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit",
-  // entrypoint for CommonJS
+  "version": "1.0.2",
+  "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video and audio communication",
   "main": "dist/index.js",
-  // entrypoint for ES module toolchains (Vite, webpack, etc.)
-  "module": "dist/index.js",
-  // TypeScript definitions
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
@@ -41,11 +37,11 @@
     "livekit-client": "^2.15.2"
   },
   "devDependencies": {
+    "@types/node": "^24.0.13",
     "livekit-client": "^2.15.2",
     "livekit-server-sdk": "^2.13.1",
-    "typescript": "^5.8.3",
     "ts-node": "^10.9.2",
-    "@types/node": "^24.0.13"
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -53,11 +49,33 @@
   "publishConfig": {
     "access": "public"
   },
-  // Optionally, explicitly map imports/requires for Node’s resolver and bundlers:
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
-    }
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "acorn": "^8.15.0",
+    "acorn-walk": "^8.3.4",
+    "arg": "^4.1.3",
+    "camelcase": "^8.0.0",
+    "camelcase-keys": "^9.1.3",
+    "create-require": "^1.1.1",
+    "diff": "^4.0.2",
+    "events": "^3.3.0",
+    "jose": "^5.10.0",
+    "loglevel": "^1.9.2",
+    "make-error": "^1.3.6",
+    "map-obj": "^5.0.0",
+    "quick-lru": "^6.1.2",
+    "rxjs": "^7.8.2",
+    "sdp": "^3.2.1",
+    "sdp-transform": "^2.15.0",
+    "ts-debounce": "^4.0.0",
+    "tslib": "^2.8.1",
+    "type-fest": "^4.41.0",
+    "typed-emitter": "^2.1.0",
+    "undici-types": "^7.8.0",
+    "v8-compile-cache-lib": "^3.0.1",
+    "webrtc-adapter": "^9.0.3",
+    "yn": "^3.1.1"
   }
 }
