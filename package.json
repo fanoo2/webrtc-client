@@ -1,8 +1,12 @@
 {
   "name": "@fanno/webrtc-client",
   "version": "1.0.1",
-  "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video and audio communication",
+  "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit",
+  // entrypoint for CommonJS
   "main": "dist/index.js",
+  // entrypoint for ES module toolchains (Vite, webpack, etc.)
+  "module": "dist/index.js",
+  // TypeScript definitions
   "types": "dist/index.d.ts",
   "files": [
     "dist/**/*",
@@ -48,5 +52,12 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  // Optionally, explicitly map imports/requires for Node’s resolver and bundlers:
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
   }
 }
