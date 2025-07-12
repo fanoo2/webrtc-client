@@ -1,6 +1,6 @@
 {
   "name": "@fanno/webrtc-client",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video and audio communication",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
