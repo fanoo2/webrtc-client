@@ -1,0 +1,60 @@
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build and Run TypeScript SDK"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "webrtc_sdk_setup"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build SDK"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Test SDK"
+
+[[workflows.workflow]]
+name = "Build and Run TypeScript SDK"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm init -y && npm install livekit-client livekit-server-sdk typescript @types/node && npx tsc && echo \"TypeScript WebRTC SDK built successfully\""
+
+[[workflows.workflow]]
+name = "webrtc_sdk_setup"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm init -y && npm install livekit-client livekit-server-sdk typescript @types/node && npm install -D ts-node && npx tsc --build"
+
+[[workflows.workflow]]
+name = "Build SDK"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsc"
+
+[[workflows.workflow]]
+name = "Test SDK"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test-sdk.js"

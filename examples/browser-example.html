@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC SDK Browser Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.connecting {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebRTC SDK Browser Example</h1>
+    
+    <div class="container">
+        <h3>Room Connection</h3>
+        <input type="text" id="roomName" placeholder="Room name" value="test-room">
+        <input type="text" id="participantName" placeholder="Your name" value="Browser User">
+        <button id="connectBtn">Connect to Room</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+    
+    <div class="container">
+        <h3>Connection Status</h3>
+        <div id="status" class="status disconnected">Disconnected</div>
+    </div>
+    
+    <div class="container">
+        <h3>Room Information</h3>
+        <div id="roomInfo">No room connected</div>
+    </div>
+    
+    <div class="container">
+        <h3>Console Log</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <!-- Load the SDK (in a real app, you'd bundle this properly) -->
+    <script type="module">
+        // This would be imported from your built SDK
+        // For demonstration, we'll create a simplified version
+        
+        class BrowserSDK {
+            constructor() {
+                this.connectionStatus = 'disconnected';
+                this.roomInfo = { name: '', participantCount: 0 };
+            }
+            
+            getConnectionStatus() {
+                return this.connectionStatus;
+            }
+            
+            getRoomInfo() {
+                return this.roomInfo;
+            }
+            
+            async connectToRoom(params) {
+                this.connectionStatus = 'connecting';
+                this.updateUI();
+                this.log(`Connecting to room: ${params.roomName}`);
+                
+                // Simulate connection process
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                this.connectionStatus = 'connected';
+                this.roomInfo = {
+                    name: params.roomName,
+                    participantCount: 1
+                };
+                
+                this.log(`Connected successfully as: ${params.participantIdentity}`);
+                this.updateUI();
+            }
+            
+            async disconnectFromRoom() {
+                this.connectionStatus = 'disconnected';
+                this.roomInfo = { name: '', participantCount: 0 };
+                this.log('Disconnected from room');
+                this.updateUI();
+            }
+            
+            log(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const logElement = document.getElementById('log');
+                logElement.innerHTML += `[${timestamp}] ${message}\n`;
+                logElement.scrollTop = logElement.scrollHeight;
+            }
+            
+            updateUI() {
+                const statusElement = document.getElementById('status');
+                const roomInfoElement = document.getElementById('roomInfo');
+                const connectBtn = document.getElementById('connectBtn');
+                const disconnectBtn = document.getElementById('disconnectBtn');
+                
+                // Update status
+                statusElement.textContent = this.connectionStatus.charAt(0).toUpperCase() + this.connectionStatus.slice(1);
+                statusElement.className = `status ${this.connectionStatus}`;
+                
+                // Update room info
+                if (this.connectionStatus === 'connected') {
+                    roomInfoElement.innerHTML = `
+                        <strong>Room:</strong> ${this.roomInfo.name}<br>
+                        <strong>Participants:</strong> ${this.roomInfo.participantCount}
+                    `;
+                } else {
+                    roomInfoElement.textContent = 'No room connected';
+                }
+                
+                // Update buttons
+                connectBtn.disabled = this.connectionStatus !== 'disconnected';
+                disconnectBtn.disabled = this.connectionStatus === 'disconnected';
+            }
+        }
+        
+        // Initialize the SDK
+        const sdk = new BrowserSDK();
+        sdk.log('WebRTC SDK initialized');
+        sdk.updateUI();
+        
+        // Connect button handler
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            const roomName = document.getElementById('roomName').value;
+            const participantName = document.getElementById('participantName').value;
+            
+            if (!roomName || !participantName) {
+                alert('Please enter both room name and participant name');
+                return;
+            }
+            
+            try {
+                await sdk.connectToRoom({
+                    roomName: roomName,
+                    participantIdentity: participantName,
+                    participantMetadata: JSON.stringify({
+                        name: participantName,
+                        browser: navigator.userAgent
+                    })
+                });
+            } catch (error) {
+                sdk.log(`Connection failed: ${error.message}`);
+            }
+        });
+        
+        // Disconnect button handler
+        document.getElementById('disconnectBtn').addEventListener('click', async () => {
+            try {
+                await sdk.disconnectFromRoom();
+            } catch (error) {
+                sdk.log(`Disconnection failed: ${error.message}`);
+            }
+        });
+        
+        sdk.log('Browser example ready - enter room details and click Connect');
+    </script>
+</body>
+</html>
