@@ -1,5 +1,5 @@
 // Test script to verify the WebRTC SDK functionality
-const { createRoomClient, setLogLevel } = require('./dist/index.js');
+const { createRoomClient, setLogLevel } = require('./dist/index.cjs.js');
 
 async function testSDK() {
   try {

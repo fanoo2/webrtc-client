@@ -1,7 +1,46 @@
-import { Room, RoomEvent } from 'livekit-client';
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// @fanno/webrtc-client - TypeScript WebRTC client SDK built on LiveKit
+// src/index.ts
+var index_exports = {};
+__export(index_exports, {
+  Config: () => Config,
+  Logger: () => Logger,
+  RoomClient: () => RoomClient,
+  createRoomClient: () => createRoomClient,
+  createRoomClientWithConfig: () => createRoomClientWithConfig,
+  setLogLevel: () => setLogLevel
+});
+module.exports = __toCommonJS(index_exports);
 
+// src/client/RoomClient.ts
+var import_livekit_client = require("livekit-client");
 
 // src/utils/logger.ts
 var Logger = class {
@@ -105,7 +144,7 @@ var Config = class {
 };
 
 // src/client/RoomClient.ts
-var RoomClient = class extends Room {
+var RoomClient = class extends import_livekit_client.Room {
   constructor(config) {
     const roomOptions = {
       adaptiveStream: true,
@@ -122,37 +161,37 @@ var RoomClient = class extends Room {
    * Setup event listeners for room state management
    */
   setupEventListeners() {
-    this.on(RoomEvent.Connected, () => {
+    this.on(import_livekit_client.RoomEvent.Connected, () => {
       this.connectionStatus = "connected";
       Logger.info("Successfully connected to room");
     });
-    this.on(RoomEvent.Disconnected, (reason) => {
+    this.on(import_livekit_client.RoomEvent.Disconnected, (reason) => {
       this.connectionStatus = "disconnected";
       Logger.info("Disconnected from room", { reason });
     });
-    this.on(RoomEvent.Reconnecting, () => {
+    this.on(import_livekit_client.RoomEvent.Reconnecting, () => {
       this.connectionStatus = "connecting";
       Logger.info("Reconnecting to room...");
     });
-    this.on(RoomEvent.ParticipantConnected, (participant) => {
+    this.on(import_livekit_client.RoomEvent.ParticipantConnected, (participant) => {
       Logger.info("Participant joined", { identity: participant.identity });
     });
-    this.on(RoomEvent.ParticipantDisconnected, (participant) => {
+    this.on(import_livekit_client.RoomEvent.ParticipantDisconnected, (participant) => {
       Logger.info("Participant left", { identity: participant.identity });
     });
-    this.on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
+    this.on(import_livekit_client.RoomEvent.ConnectionQualityChanged, (quality, participant) => {
       Logger.debug("Connection quality changed", {
         quality,
         participant: participant?.identity || "local"
       });
     });
-    this.on(RoomEvent.TrackSubscribed, (track, publication, participant) => {
+    this.on(import_livekit_client.RoomEvent.TrackSubscribed, (track, publication, participant) => {
       Logger.debug("Track subscribed", {
         trackKind: track.kind,
         participant: participant.identity
       });
     });
-    this.on(RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
+    this.on(import_livekit_client.RoomEvent.TrackUnsubscribed, (track, publication, participant) => {
       Logger.debug("Track unsubscribed", {
         trackKind: track.kind,
         participant: participant.identity
@@ -210,7 +249,7 @@ var RoomClient = class extends Room {
    */
   async generateAccessToken(params) {
     try {
-      const { AccessToken } = await import('livekit-server-sdk');
+      const { AccessToken } = await import("livekit-server-sdk");
       const token = new AccessToken(this.config.apiKey, this.config.apiSecret, {
         identity: params.participantIdentity,
         metadata: params.participantMetadata
@@ -305,5 +344,12 @@ function createRoomClientWithConfig(config) {
 function setLogLevel(level) {
   Logger.setLogLevel(level);
 }
-
-export { Config, Logger, RoomClient, createRoomClient, createRoomClientWithConfig, setLogLevel };
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  Config,
+  Logger,
+  RoomClient,
+  createRoomClient,
+  createRoomClientWithConfig,
+  setLogLevel
+});
