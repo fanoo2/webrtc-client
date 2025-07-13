@@ -95,33 +95,34 @@ Logger.logLevel = "info";
 // src/utils/config.ts
 var Config = class {
   /**
-   * Get LiveKit API key from environment variables
+   * Get LiveKit API key from environment variables (optional for browser environments)
    */
   static getLiveKitApiKey() {
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    if (!apiKey) {
-      throw new Error("LIVEKIT_API_KEY environment variable is required");
+    if (typeof process === "undefined" || !process.env) {
+      return void 0;
     }
-    return apiKey;
+    return process.env.LIVEKIT_API_KEY;
   }
   /**
-   * Get LiveKit API secret from environment variables
+   * Get LiveKit API secret from environment variables (optional for browser environments)
    */
   static getLiveKitApiSecret() {
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    if (!apiSecret) {
-      throw new Error("LIVEKIT_API_SECRET environment variable is required");
+    if (typeof process === "undefined" || !process.env) {
+      return void 0;
     }
-    return apiSecret;
+    return process.env.LIVEKIT_API_SECRET;
   }
   /**
    * Get LiveKit server URL from environment variables with fallback
    */
   static getLiveKitUrl() {
+    if (typeof process === "undefined" || !process.env) {
+      return "ws://localhost:7881";
+    }
     return process.env.LIVEKIT_URL || "ws://localhost:7881";
   }
   /**
-   * Get all LiveKit configuration from environment
+   * Get all LiveKit configuration from environment (browser-safe)
    */
   static getLiveKitConfig() {
     return {
@@ -131,14 +132,14 @@ var Config = class {
     };
   }
   /**
-   * Validate that all required environment variables are present
+   * Validate that all required environment variables are present for server-side usage
+   * Note: This is optional in browser environments where a tokenProvider should be used instead
    */
   static validateEnvironment() {
-    try {
-      this.getLiveKitApiKey();
-      this.getLiveKitApiSecret();
-    } catch (error) {
-      throw new Error(`Environment validation failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    const apiKey = this.getLiveKitApiKey();
+    const apiSecret = this.getLiveKitApiSecret();
+    if (!apiKey || !apiSecret) {
+      throw new Error("LIVEKIT_API_KEY and LIVEKIT_API_SECRET environment variables are required for server-side token generation. In browser environments, provide a custom tokenProvider instead.");
     }
   }
 };
@@ -248,7 +249,17 @@ var RoomClient = class extends import_livekit_client.Room {
    * Note: In a production environment, this should be done on the server side
    */
   async generateAccessToken(params) {
+    if (this.config.tokenProvider) {
+      Logger.info("Using custom token provider");
+      return await this.config.tokenProvider(params);
+    }
+    if (!this.config.apiKey || !this.config.apiSecret) {
+      throw new Error("API key and secret are required for server-side token generation, or provide a custom tokenProvider");
+    }
     try {
+      if (typeof window !== "undefined") {
+        throw new Error("Server-side token generation is not available in browser environments. Please provide a tokenProvider function in your config that calls your server endpoint.");
+      }
       const { AccessToken } = await import("livekit-server-sdk");
       const token = new AccessToken(this.config.apiKey, this.config.apiSecret, {
         identity: params.participantIdentity,
@@ -344,12 +355,3 @@ function createRoomClientWithConfig(config) {
 function setLogLevel(level) {
   Logger.setLogLevel(level);
 }
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  Config,
-  Logger,
-  RoomClient,
-  createRoomClient,
-  createRoomClientWithConfig,
-  setLogLevel
-});

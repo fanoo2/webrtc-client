@@ -140,7 +140,23 @@ export class RoomClient extends Room implements LiveKitRoom {
    * Note: In a production environment, this should be done on the server side
    */
   private async generateAccessToken(params: RoomConnectionParams): Promise<string> {
+    // If a custom token provider is configured, use it (ideal for browser environments)
+    if (this.config.tokenProvider) {
+      Logger.info('Using custom token provider');
+      return await this.config.tokenProvider(params);
+    }
+
+    // Validate server-side requirements
+    if (!this.config.apiKey || !this.config.apiSecret) {
+      throw new Error('API key and secret are required for server-side token generation, or provide a custom tokenProvider');
+    }
+
     try {
+      // Guard server-side imports - only load livekit-server-sdk in Node.js environments
+      if (typeof window !== "undefined") {
+        throw new Error('Server-side token generation is not available in browser environments. Please provide a tokenProvider function in your config that calls your server endpoint.');
+      }
+      
       // This is a simplified token generation for demonstration
       // In production, you should use the LiveKit server SDK to generate tokens server-side
       const { AccessToken } = await import('livekit-server-sdk');

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC SDK - Browser with Token Provider</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #f0f0f0;
+        }
+        .error {
+            background: #ffe6e6;
+            color: #cc0000;
+        }
+        .success {
+            background: #e6ffe6;
+            color: #006600;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebRTC SDK - Browser Example with Token Provider</h1>
+    
+    <div class="controls">
+        <h3>Connection Settings</h3>
+        <input type="text" id="serverUrl" placeholder="LiveKit Server URL" value="ws://localhost:7881">
+        <input type="text" id="tokenEndpoint" placeholder="Token Endpoint URL" value="http://localhost:3000/api/token">
+        <br>
+        <input type="text" id="roomName" placeholder="Room Name" value="test-room">
+        <input type="text" id="participantName" placeholder="Your Name" value="participant-1">
+    </div>
+
+    <div class="controls">
+        <button id="connectBtn">Connect to Room</button>
+        <button id="disconnectBtn" disabled>Disconnect</button>
+    </div>
+
+    <div id="status" class="status">Ready to connect</div>
+
+    <div id="participants">
+        <h3>Participants</h3>
+        <ul id="participantList"></ul>
+    </div>
+
+    <!-- Import the SDK as ES module -->
+    <script type="module">
+        // Import the WebRTC SDK
+        import { createRoomClientWithConfig, setLogLevel } from '../dist/index.esm.js';
+
+        // Enable debug logging
+        setLogLevel('debug');
+
+        let roomClient = null;
+
+        // DOM elements
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const statusDiv = document.getElementById('status');
+        const participantList = document.getElementById('participantList');
+
+        // Token provider function that calls your server
+        async function tokenProvider(params) {
+            const tokenEndpoint = document.getElementById('tokenEndpoint').value;
+            
+            try {
+                const response = await fetch(tokenEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        roomName: params.roomName,
+                        participantIdentity: params.participantIdentity,
+                        participantMetadata: params.participantMetadata || ''
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Token request failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.token;
+            } catch (error) {
+                console.error('Token provider error:', error);
+                throw error;
+            }
+        }
+
+        // Initialize room client with browser-friendly configuration
+        function initializeRoomClient() {
+            const serverUrl = document.getElementById('serverUrl').value;
+            
+            roomClient = createRoomClientWithConfig({
+                url: serverUrl,
+                tokenProvider: tokenProvider, // Use custom token provider instead of API keys
+                roomOptions: {
+                    adaptiveStream: true,
+                    dynacast: true,
+                    publishDefaults: {
+                        videoSimulcastLayers: [{ width: 640, height: 480 }]
+                    }
+                }
+            });
+
+            // Set up event listeners
+            roomClient.on('participantConnected', (participant) => {
+                updateStatus(`Participant joined: ${participant.identity}`, 'success');
+                updateParticipantList();
+            });
+
+            roomClient.on('participantDisconnected', (participant) => {
+                updateStatus(`Participant left: ${participant.identity}`, 'success');
+                updateParticipantList();
+            });
+
+            roomClient.on('connected', () => {
+                updateStatus('Successfully connected to room!', 'success');
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                updateParticipantList();
+            });
+
+            roomClient.on('disconnected', () => {
+                updateStatus('Disconnected from room', 'success');
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                updateParticipantList();
+            });
+        }
+
+        // Connect to room
+        async function connectToRoom() {
+            const roomName = document.getElementById('roomName').value;
+            const participantName = document.getElementById('participantName').value;
+
+            if (!roomName || !participantName) {
+                updateStatus('Please enter room name and participant name', 'error');
+                return;
+            }
+
+            try {
+                updateStatus('Connecting to room...', '');
+                
+                if (!roomClient) {
+                    initializeRoomClient();
+                }
+
+                await roomClient.connectToRoom({
+                    roomName: roomName,
+                    participantIdentity: participantName,
+                    participantMetadata: JSON.stringify({ 
+                        source: 'browser-example',
+                        timestamp: Date.now()
+                    })
+                });
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                updateStatus(`Connection failed: ${error.message}`, 'error');
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        // Disconnect from room
+        async function disconnectFromRoom() {
+            if (roomClient) {
+                try {
+                    await roomClient.disconnectFromRoom();
+                } catch (error) {
+                    console.error('Disconnection error:', error);
+                    updateStatus(`Disconnection error: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        // Update status display
+        function updateStatus(message, type = '') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+
+        // Update participant list
+        function updateParticipantList() {
+            if (!roomClient) {
+                participantList.innerHTML = '<li>Not connected</li>';
+                return;
+            }
+
+            const participants = [];
+            
+            // Add local participant
+            const localParticipant = roomClient.localParticipant;
+            if (localParticipant) {
+                participants.push(`${localParticipant.identity} (You)`);
+            }
+
+            // Add remote participants
+            roomClient.remoteParticipants.forEach(participant => {
+                participants.push(participant.identity);
+            });
+
+            if (participants.length === 0) {
+                participantList.innerHTML = '<li>No participants</li>';
+            } else {
+                participantList.innerHTML = participants
+                    .map(name => `<li>${name}</li>`)
+                    .join('');
+            }
+        }
+
+        // Event listeners
+        connectBtn.addEventListener('click', connectToRoom);
+        disconnectBtn.addEventListener('click', disconnectFromRoom);
+
+        // Initialize
+        updateParticipantList();
+        updateStatus('Ready to connect. Make sure your token endpoint is running!');
+
+        console.log('Browser example loaded. Configure your settings and click Connect.');
+    </script>
+</body>
+</html>

@@ -6,10 +6,12 @@ import { Room, RoomOptions, RoomConnectOptions } from 'livekit-client';
 export interface RoomClientConfig {
   /** LiveKit server URL */
   url: string;
-  /** API key for authentication */
-  apiKey: string;
-  /** API secret for authentication */
-  apiSecret: string;
+  /** API key for authentication (required for server-side token generation) */
+  apiKey?: string;
+  /** API secret for authentication (required for server-side token generation) */
+  apiSecret?: string;
+  /** Optional custom token provider function for browser environments */
+  tokenProvider?: (params: RoomConnectionParams) => Promise<string>;
   /** Optional room options */
   roomOptions?: RoomOptions;
   /** Optional connection options */

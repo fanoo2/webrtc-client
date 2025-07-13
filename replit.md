@@ -107,22 +107,25 @@ The SDK follows a clean, modular architecture with clear separation of concerns:
 
 ### Completed Features ✅
 - **Core SDK Implementation**: Fully functional WebRTC client wrapper
-- **TypeScript Compilation**: CommonJS output for Node.js compatibility  
-- **Configuration System**: Environment variable support with validation
+- **Dual CJS/ESM Builds**: Both CommonJS and ES module outputs via TSUp bundling
+- **Browser Compatibility**: Proper server-side import guarding and token provider support
+- **Configuration System**: Environment variable support with browser-safe fallbacks
 - **Type Safety**: Comprehensive TypeScript interfaces and type definitions
 - **Logging System**: Configurable logging with multiple levels
 - **Factory Functions**: Easy-to-use client creation methods
 - **Error Handling**: Robust error handling and connection state management
-- **Documentation**: Complete README with API reference and examples
+- **Documentation**: Complete README with API reference and browser usage guide
 - **Testing**: Basic SDK testing to verify functionality
+- **Security**: Browser-safe token generation via server endpoints
 
 ### Testing Results
 - **SDK Initialization**: ✅ Successfully creates room clients
-- **Configuration Loading**: ✅ Reads environment variables correctly
-- **TypeScript Compilation**: ✅ Builds without errors to dist/ directory
+- **Configuration Loading**: ✅ Reads environment variables correctly (with browser fallbacks)
+- **TypeScript Compilation**: ✅ Builds without errors to dist/ directory (dual CJS/ESM)
 - **API Compatibility**: ✅ Works with LiveKit 2.15.2 client SDK
 - **Node.js Testing**: ✅ Basic functionality verified (creation, status checks)
-- **Browser Compatibility**: ⚠️ Requires browser environment for actual connections
+- **Browser Compatibility**: ✅ ES module imports work correctly with proper token provider setup
+- **Server-Side Imports**: ✅ Properly guarded to prevent browser loading issues
 
 ### Project Files
 - **Source Code**: Complete TypeScript implementation in `src/`

@@ -1,5 +1,5 @@
 // Node.js compatible example - SDK initialization and configuration testing
-const { createRoomClient, createRoomClientWithConfig, setLogLevel, Config } = require('../dist/index.js');
+const { createRoomClient, createRoomClientWithConfig, setLogLevel, Config } = require('../dist/index.cjs.js');
 
 async function nodeExample() {
   try {

@@ -10,6 +10,8 @@ A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video
 - 📊 Built-in logging and debugging
 - 🔌 Extensible configuration system
 - 🌐 Modern ES2020/CommonJS compatible
+- 🌍 **Dual CJS/ESM builds** - Works in both Node.js and browser environments
+- 🔒 **Browser-safe** - Proper server-side token generation with client-side security
 
 ## Installation
 
@@ -68,6 +70,59 @@ const roomClient = createRoomClientWithConfig({
   }
 });
 ```
+
+## Browser Usage
+
+The SDK supports both Node.js and browser environments with dual CJS/ESM builds. For browser security, use a token provider instead of API keys.
+
+### Browser Example with Token Provider
+
+```javascript
+// ES module import in browser
+import { createRoomClientWithConfig } from '@fanno/webrtc-client';
+
+// Token provider function that calls your server
+async function tokenProvider(params) {
+  const response = await fetch('/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params)
+  });
+  const data = await response.json();
+  return data.token;
+}
+
+// Create browser-safe room client
+const roomClient = createRoomClientWithConfig({
+  url: 'wss://your-livekit-server.com',
+  tokenProvider: tokenProvider, // Secure token generation
+  roomOptions: {
+    adaptiveStream: true,
+    dynacast: true
+  }
+});
+```
+
+### Package Exports
+
+The package provides proper module exports for different environments:
+
+```json
+{
+  "main": "dist/index.cjs.js",     // CommonJS for Node.js
+  "module": "dist/index.esm.js",   // ES modules for browsers/bundlers
+  "types": "dist/index.d.ts",      // TypeScript declarations
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  }
+}
+```
+
+**📖 See [BROWSER_USAGE.md](./BROWSER_USAGE.md) for complete browser setup guide and security best practices.**
 
 ## API Reference
 

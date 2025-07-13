@@ -7,10 +7,12 @@ import { Room, RoomOptions, RoomConnectOptions, ConnectionState } from 'livekit-
 interface RoomClientConfig {
     /** LiveKit server URL */
     url: string;
-    /** API key for authentication */
-    apiKey: string;
-    /** API secret for authentication */
-    apiSecret: string;
+    /** API key for authentication (required for server-side token generation) */
+    apiKey?: string;
+    /** API secret for authentication (required for server-side token generation) */
+    apiSecret?: string;
+    /** Optional custom token provider function for browser environments */
+    tokenProvider?: (params: RoomConnectionParams) => Promise<string>;
     /** Optional room options */
     roomOptions?: RoomOptions;
     /** Optional connection options */
@@ -119,27 +121,28 @@ declare function createRoomClientWithConfig(config: RoomClientConfig): LiveKitRo
  */
 declare class Config {
     /**
-     * Get LiveKit API key from environment variables
+     * Get LiveKit API key from environment variables (optional for browser environments)
      */
-    static getLiveKitApiKey(): string;
+    static getLiveKitApiKey(): string | undefined;
     /**
-     * Get LiveKit API secret from environment variables
+     * Get LiveKit API secret from environment variables (optional for browser environments)
      */
-    static getLiveKitApiSecret(): string;
+    static getLiveKitApiSecret(): string | undefined;
     /**
      * Get LiveKit server URL from environment variables with fallback
      */
     static getLiveKitUrl(): string;
     /**
-     * Get all LiveKit configuration from environment
+     * Get all LiveKit configuration from environment (browser-safe)
      */
     static getLiveKitConfig(): {
         url: string;
-        apiKey: string;
-        apiSecret: string;
+        apiKey: string | undefined;
+        apiSecret: string | undefined;
     };
     /**
-     * Validate that all required environment variables are present
+     * Validate that all required environment variables are present for server-side usage
+     * Note: This is optional in browser environments where a tokenProvider should be used instead
      */
     static validateEnvironment(): void;
 }
