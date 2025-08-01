@@ -87,6 +87,39 @@ jobs:
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=tag
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+          type=raw,value=latest
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        platforms: linux/amd64,linux/arm64
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
     - name: Create GitHub Release
       uses: actions/create-release@v1
       env:
@@ -103,8 +136,19 @@ jobs:
           
           ### Installation
           
+          **NPM Package:**
           ```bash
           npm install @fanno/webrtc-client@${{ steps.version.outputs.VERSION }}
+          ```
+          
+          **Docker Image:**
+          ```bash
+          docker pull ghcr.io/${{ github.repository }}:${{ steps.version.outputs.VERSION }}
+          ```
+          
+          **Helm Chart:**
+          ```bash
+          helm install webrtc-sdk ./helm/webrtc-client-sdk --set image.tag=${{ steps.version.outputs.VERSION }}
           ```
         draft: false
         prerelease: false

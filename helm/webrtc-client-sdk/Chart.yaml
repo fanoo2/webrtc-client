@@ -1,0 +1,19 @@
+apiVersion: v2
+name: webrtc-client-sdk
+description: A Helm chart for WebRTC Client SDK
+type: application
+version: 0.1.0
+appVersion: "1.0.5"
+keywords:
+  - webrtc
+  - livekit
+  - sdk
+  - realtime
+  - video
+  - audio
+home: https://github.com/fanoo2/webrtc-client
+sources:
+  - https://github.com/fanoo2/webrtc-client
+maintainers:
+  - name: fanno
+    url: https://github.com/fanoo2

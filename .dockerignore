@@ -1,0 +1,40 @@
+node_modules
+npm-debug.log
+.npm
+.git
+.gitignore
+README.md
+.env
+.nyc_output
+coverage
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Temporary files
+/tmp
+*.tmp
+*.temp
+
+# Development files
+.replit
+replit.md
+*.md
+
+# Test and development scripts (but keep test-sdk.js)
+publish-*.js
+fix-*.js
+update-*.js
+verify-*.js
+pre-publish-*.js
+final-publish-*.js
+tsup-bundle-*.js
+
+# Package files for different configurations
+package.json.fixed
+package.json.publish-ready
+package.json.simple
+package.json.tsup
+package-publish.json
