@@ -36,8 +36,12 @@ try {
     console.log('✅ CommonJS bundle working');
   }
   
-  // Test client creation
-  const client = cjsSDK.createRoomClient();
+  // Test client creation with custom config to avoid environment validation
+  const customConfig = {
+    url: 'ws://localhost:7881',
+    tokenProvider: async () => 'mock-token'
+  };
+  const client = cjsSDK.createRoomClientWithConfig(customConfig);
   const status = client.getConnectionStatus();
   console.log(`✅ Client creation working: ${status}`);
   
