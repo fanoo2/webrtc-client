@@ -15,8 +15,22 @@ A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video
 
 ## Installation
 
+### NPM Package
+
 ```bash
 npm install @fanno/webrtc-client
+```
+
+### Docker Image
+
+```bash
+docker pull ghcr.io/fanoo2/webrtc-client:latest
+```
+
+### Helm Chart
+
+```bash
+helm install webrtc-sdk ./helm/webrtc-client-sdk
 ```
 
 ### Development Installation
@@ -151,6 +165,42 @@ The package provides proper module exports for different environments:
 - `getLocalParticipant()` - Get local participant info
 - `getRemoteParticipants()` - Get all remote participants
 
+## Deployment
+
+### Docker
+
+Run the SDK in a Docker container:
+
+```bash
+# Pull the latest image
+docker pull ghcr.io/fanoo2/webrtc-client:latest
+
+# Run with environment variables
+docker run -d \
+  -e LIVEKIT_API_KEY=your_api_key \
+  -e LIVEKIT_API_SECRET=your_api_secret \
+  -e LIVEKIT_URL=wss://your-livekit-server.com \
+  -p 3000:3000 \
+  ghcr.io/fanoo2/webrtc-client:latest
+```
+
+### Kubernetes with Helm
+
+Deploy to Kubernetes using the provided Helm chart:
+
+```bash
+# Install with default values
+helm install webrtc-sdk ./helm/webrtc-client-sdk
+
+# Install with custom configuration
+helm install webrtc-sdk ./helm/webrtc-client-sdk \
+  --set image.tag=1.0.5 \
+  --set replicaCount=3 \
+  --set livekit.url=wss://your-livekit-server.com
+```
+
+For detailed Helm configuration options, see [helm/webrtc-client-sdk/README.md](./helm/webrtc-client-sdk/README.md).
+
 ## Development
 
 ### Build the project
@@ -187,9 +237,19 @@ This project uses GitHub Actions for continuous integration and deployment:
 ### Release Workflow (`.github/workflows/release.yml`)
 - Triggered on version tags (e.g., `v1.0.0`)
 - Builds, tests, and validates the package
+- **Builds and publishes Docker images to GitHub Container Registry**
 - Publishes to npm using `NPM_TOKEN` secret
 - Creates GitHub releases automatically
 - Enforces bundle size limits
+
+### Frontend Notification Workflow (`.github/workflows/notify-frontend.yml`)
+- **Triggers on published releases to notify frontend systems**
+- **Supports webhook notifications and repository dispatch events**
+- **Configurable via repository variables:**
+  - `FRONTEND_WEBHOOK_URL`: HTTP endpoint for webhook notifications
+  - `FRONTEND_REPO`: Target repository for dispatch events
+  - `FRONTEND_TOKEN`: Personal access token for repository dispatch
+- **Provides comprehensive release information including Docker image and Helm chart details**
 
 ### Publishing a Release
 1. Update version in `package.json`
