@@ -1,5 +1,5 @@
 // Test script to verify the WebRTC SDK functionality
-const { createRoomClient, setLogLevel } = require('./dist/index.cjs.js');
+const { createRoomClient, createRoomClientWithConfig, setLogLevel } = require('./dist/index.cjs.js');
 
 async function testSDK() {
   try {
@@ -32,10 +32,16 @@ async function testSDK() {
       }
       console.log('✓ setLogLevel function available');
       
-      // Try to create room client (will fail with mock credentials but should handle gracefully)
+      // Test createRoomClientWithConfig function exists
+      if (typeof createRoomClientWithConfig !== 'function') {
+        throw new Error('createRoomClientWithConfig is not a function');
+      }
+      console.log('✓ createRoomClientWithConfig function available');
+      
+      // Try to create room client without environment variables (should fail)
       try {
         const roomClient = createRoomClient();
-        console.log('✓ Room client created (unexpected with mock credentials)');
+        console.log('⚠️ Room client created unexpectedly with mock credentials');
         
         // Test connection status
         const status = roomClient.getConnectionStatus();
@@ -51,6 +57,28 @@ async function testSDK() {
         } else {
           throw error;
         }
+      }
+      
+      // Test browser-style client creation with tokenProvider
+      try {
+        const customConfig = {
+          url: 'ws://localhost:7881',
+          tokenProvider: async () => 'mock-token'
+        };
+        const browserClient = createRoomClientWithConfig(customConfig);
+        console.log('✓ Browser-style client created successfully');
+        
+        // Test connection status
+        const status = browserClient.getConnectionStatus();
+        console.log('✓ Browser client connection status:', status);
+        
+        // Test room info (before connection)
+        const roomInfo = browserClient.getRoomInfo();
+        console.log('✓ Browser client room info:', roomInfo);
+        
+      } catch (error) {
+        console.error('❌ Failed to create browser-style client:', error.message);
+        throw error;
       }
       
     } else {
