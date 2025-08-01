@@ -160,8 +160,42 @@ npm run build
 
 ### Test the SDK
 ```bash
+npm test
+```
+
+Or run directly:
+```bash
 node test-sdk.js
 ```
+
+### Watch Mode for Development
+```bash
+npm run build:watch
+```
+
+## CI/CD
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+### CI Workflow (`.github/workflows/ci.yml`)
+- Runs on push/PR to main and develop branches
+- Tests on Node.js 16.x, 18.x, and 20.x
+- Builds the SDK and runs tests
+- Validates bundle integrity and size limits (50KB max)
+- Includes bundle size audit using `tsup-bundle-summary.js`
+
+### Release Workflow (`.github/workflows/release.yml`)
+- Triggered on version tags (e.g., `v1.0.0`)
+- Builds, tests, and validates the package
+- Publishes to npm using `NPM_TOKEN` secret
+- Creates GitHub releases automatically
+- Enforces bundle size limits
+
+### Publishing a Release
+1. Update version in `package.json`
+2. Commit and push changes
+3. Create and push a version tag: `git tag v1.0.6 && git push origin v1.0.6`
+4. The release workflow will automatically publish to npm
 
 ### Project Structure
 
