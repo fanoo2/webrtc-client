@@ -1,0 +1,110 @@
+name: Notify Frontend on SDK Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  notify-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Extract release information
+      id: release
+      run: |
+        echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        echo "REPO_NAME=${GITHUB_REPOSITORY}" >> $GITHUB_OUTPUT
+        echo "RELEASE_URL=${{ github.event.release.html_url }}" >> $GITHUB_OUTPUT
+        echo "DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY}:${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+    
+    - name: Prepare notification payload
+      id: payload
+      run: |
+        cat > notification.json << 'EOF'
+        {
+          "event": "sdk_release",
+          "timestamp": "${{ github.event.release.published_at }}",
+          "sdk": {
+            "name": "@fanno/webrtc-client",
+            "version": "${{ steps.release.outputs.VERSION }}",
+            "tag": "${{ steps.release.outputs.TAG_NAME }}",
+            "repository": "${{ steps.release.outputs.REPO_NAME }}",
+            "release_url": "${{ steps.release.outputs.RELEASE_URL }}",
+            "release_notes": ${{ toJSON(github.event.release.body) }}
+          },
+          "artifacts": {
+            "npm_package": "@fanno/webrtc-client@${{ steps.release.outputs.VERSION }}",
+            "docker_image": "${{ steps.release.outputs.DOCKER_IMAGE }}",
+            "helm_chart": "helm/webrtc-client-sdk"
+          },
+          "installation": {
+            "npm": "npm install @fanno/webrtc-client@${{ steps.release.outputs.VERSION }}",
+            "docker": "docker pull ${{ steps.release.outputs.DOCKER_IMAGE }}",
+            "helm": "helm install webrtc-sdk ./helm/webrtc-client-sdk --set image.tag=${{ steps.release.outputs.VERSION }}"
+          }
+        }
+        EOF
+        echo "PAYLOAD_FILE=notification.json" >> $GITHUB_OUTPUT
+    
+    - name: Display notification payload
+      run: |
+        echo "Notification payload:"
+        cat ${{ steps.payload.outputs.PAYLOAD_FILE }}
+    
+    - name: Notify Frontend via Webhook
+      if: vars.FRONTEND_WEBHOOK_URL != ''
+      run: |
+        curl -X POST \
+          -H "Content-Type: application/json" \
+          -H "X-GitHub-Event: sdk_release" \
+          -H "X-SDK-Version: ${{ steps.release.outputs.VERSION }}" \
+          -H "User-Agent: WebRTC-SDK-Notifier/1.0" \
+          --data @${{ steps.payload.outputs.PAYLOAD_FILE }} \
+          "${{ vars.FRONTEND_WEBHOOK_URL }}" \
+          --max-time 30 \
+          --retry 3 \
+          --retry-delay 5 \
+          || echo "Warning: Failed to notify frontend webhook"
+    
+    - name: Notify Frontend via Repository Dispatch
+      if: vars.FRONTEND_REPO != '' && vars.FRONTEND_TOKEN != ''
+      run: |
+        curl -X POST \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token ${{ secrets.FRONTEND_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/${{ vars.FRONTEND_REPO }}/dispatches" \
+          -d '{
+            "event_type": "sdk_release",
+            "client_payload": '$(<${{ steps.payload.outputs.PAYLOAD_FILE }})'
+          }' \
+          --max-time 30 \
+          --retry 3 \
+          --retry-delay 5 \
+          || echo "Warning: Failed to send repository dispatch to frontend"
+    
+    - name: Log notification summary
+      run: |
+        echo "## SDK Release Notification Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **SDK Version:** ${{ steps.release.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Release URL:** ${{ steps.release.outputs.RELEASE_URL }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Docker Image:** ${{ steps.release.outputs.DOCKER_IMAGE }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Notification Targets" >> $GITHUB_STEP_SUMMARY
+        if [ -n "${{ vars.FRONTEND_WEBHOOK_URL }}" ]; then
+          echo "- ✅ Webhook notification sent to: \`${{ vars.FRONTEND_WEBHOOK_URL }}\`" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ⚠️ Webhook URL not configured (set FRONTEND_WEBHOOK_URL variable)" >> $GITHUB_STEP_SUMMARY
+        fi
+        if [ -n "${{ vars.FRONTEND_REPO }}" ]; then
+          echo "- ✅ Repository dispatch sent to: \`${{ vars.FRONTEND_REPO }}\`" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- ⚠️ Frontend repository not configured (set FRONTEND_REPO variable)" >> $GITHUB_STEP_SUMMARY
+        fi
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Configuration" >> $GITHUB_STEP_SUMMARY
+        echo "To enable notifications, set these repository variables:" >> $GITHUB_STEP_SUMMARY
+        echo "- \`FRONTEND_WEBHOOK_URL\`: HTTP endpoint to receive webhook notifications" >> $GITHUB_STEP_SUMMARY
+        echo "- \`FRONTEND_REPO\`: Target repository for dispatch events (e.g., 'owner/repo')" >> $GITHUB_STEP_SUMMARY
+        echo "- \`FRONTEND_TOKEN\`: Personal access token secret for repository dispatch" >> $GITHUB_STEP_SUMMARY
