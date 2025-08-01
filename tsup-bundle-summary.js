@@ -31,7 +31,7 @@ console.log('✅ Exports: Dual package support');
 console.log('\n🧪 Testing bundled SDK:');
 try {
   // Test CommonJS
-  const cjsSDK = require('./dist/index.js');
+  const cjsSDK = require('./dist/index.cjs.js');
   if (typeof cjsSDK.createRoomClient === 'function') {
     console.log('✅ CommonJS bundle working');
   }

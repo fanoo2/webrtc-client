@@ -16,6 +16,16 @@ A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video
 ## Installation
 
 ```bash
+npm install @fanno/webrtc-client
+```
+
+### Development Installation
+
+If you want to build from source:
+
+```bash
+git clone https://github.com/fanoo2/webrtc-client.git
+cd webrtc-client
 npm install
 npm run build
 ```
@@ -35,7 +45,7 @@ LIVEKIT_URL=ws://localhost:7881  # Optional, defaults to localhost
 ### 2. Basic Usage
 
 ```javascript
-const { createRoomClient } = require('./dist/index.js');
+const { createRoomClient } = require('@fanno/webrtc-client');
 
 async function startVideoCall() {
   // Create room client with automatic configuration

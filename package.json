@@ -27,12 +27,12 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fanno/webrtc-client.git"
+    "url": "git+https://github.com/fanoo2/webrtc-client.git"
   },
   "bugs": {
-    "url": "https://github.com/fanno/webrtc-client/issues"
+    "url": "https://github.com/fanoo2/webrtc-client/issues"
   },
-  "homepage": "https://github.com/fanno/webrtc-client#readme",
+  "homepage": "https://github.com/fanoo2/webrtc-client#readme",
   "peerDependencies": {
     "livekit-client": "^2.15.2"
   },

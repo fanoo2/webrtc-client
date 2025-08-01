@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build SDK
+      run: npm run build
+    
+    - name: Run tests
+      run: node test-sdk.js
+      env:
+        # Mock environment for testing
+        LIVEKIT_API_KEY: test-key
+        LIVEKIT_API_SECRET: test-secret
+        LIVEKIT_URL: ws://localhost:7881
+    
+    - name: Validate bundle
+      run: |
+        # Check that dist files exist
+        test -f dist/index.cjs.js
+        test -f dist/index.esm.js
+        test -f dist/index.d.ts
+        echo "✓ All required bundle files exist"
+    
+    - name: Bundle size audit
+      run: node tsup-bundle-summary.js
+    
+    - name: Check bundle size limits
+      run: |
+        # Get bundle sizes
+        CJS_SIZE=$(stat -c%s dist/index.cjs.js)
+        ESM_SIZE=$(stat -c%s dist/index.esm.js)
+        
+        # Convert to KB
+        CJS_KB=$((CJS_SIZE / 1024))
+        ESM_KB=$((ESM_SIZE / 1024))
+        
+        echo "Bundle sizes: CJS=${CJS_KB}KB, ESM=${ESM_KB}KB"
+        
+        # Fail if bundles are too large (50KB limit)
+        if [ $CJS_KB -gt 50 ]; then
+          echo "❌ CJS bundle too large: ${CJS_KB}KB > 50KB"
+          exit 1
+        fi
+        
+        if [ $ESM_KB -gt 50 ]; then
+          echo "❌ ESM bundle too large: ${ESM_KB}KB > 50KB"
+          exit 1
+        fi
+        
+        echo "✓ Bundle sizes within limits"
