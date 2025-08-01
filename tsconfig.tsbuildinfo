@@ -1,1 +1,1 @@
-{"root":["./src/index.ts","./src/client/RoomClient.ts","./src/types/index.ts","./src/utils/config.ts","./src/utils/logger.ts"],"version":"5.8.3"}
+{"root":["./src/index.ts","./src/client/RoomClient.ts","./src/types/index.ts","./src/utils/config.ts","./src/utils/logger.ts"],"version":"5.9.2"}
