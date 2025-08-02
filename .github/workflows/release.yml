@@ -26,12 +26,13 @@ jobs:
       run: npm run build
     
     - name: Run tests
-      run: node test-sdk.js
+      run: npm test
       env:
-        # Mock environment for testing
-        LIVEKIT_API_KEY: test-key
-        LIVEKIT_API_SECRET: test-secret
-        LIVEKIT_URL: ws://localhost:7881
+        # Mock environment for testing in release
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        CI: true
     
     - name: Validate bundle
       run: |

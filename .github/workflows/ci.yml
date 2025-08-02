@@ -29,13 +29,49 @@ jobs:
     - name: Build SDK
       run: npm run build
     
-    - name: Run tests
-      run: node test-sdk.js
+    - name: Run unit tests
+      run: npm run test:unit
       env:
         # Mock environment for testing
-        LIVEKIT_API_KEY: test-key
-        LIVEKIT_API_SECRET: test-secret
-        LIVEKIT_URL: ws://localhost:7881
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        CI: true
+    
+    - name: Run integration tests
+      run: npm run test:integration
+      env:
+        # Use real credentials if available, mock otherwise
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        CI: true
+    
+    - name: Run test coverage
+      run: npm run test:coverage
+      env:
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        CI: true
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      if: matrix.node-version == '20.x'
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+      continue-on-error: true
+    
+    - name: Run legacy test for compatibility
+      run: npm run test:legacy
+      env:
+        # Mock environment for legacy testing
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        CI: true
     
     - name: Validate bundle
       run: |
