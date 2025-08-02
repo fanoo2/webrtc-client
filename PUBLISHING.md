@@ -1,108 +1,158 @@
 # Publishing Guide for WebRTC Client SDK
 
-## Prerequisites for Publishing
+This SDK uses automated publishing through GitHub Actions. Manual publishing steps have been removed in favor of a streamlined release process.
 
-1. **Create npm account**: Sign up at https://www.npmjs.com/signup
-2. **Login to npm**: Run `npm login` in your terminal
-3. **Update package.json**: Replace current package.json with the configuration below
+## Automated Release Process
 
-## Required package.json Changes
+The SDK is automatically published to npm when you create a new release tag. The release workflow handles:
 
-Since the package.json file is protected in this environment, you'll need to manually update it with these changes:
+- ✅ Building the SDK
+- ✅ Running comprehensive tests (unit and integration)
+- ✅ Validating bundle sizes
+- ✅ Publishing to npm registry
+- ✅ Creating Docker images
+- ✅ Notifying dependent repositories
 
-```json
-{
-  "name": "@your-org/webrtc-client",
-  "version": "1.0.0",
-  "description": "A TypeScript-based WebRTC client SDK built on top of LiveKit for real-time video and audio communication",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsc",
-    "test": "node test-sdk.js",
-    "prepublishOnly": "npm run build"
-  },
-  "keywords": [
-    "webrtc",
-    "livekit",
-    "video",
-    "audio",
-    "realtime",
-    "typescript",
-    "sdk"
-  ],
-  "author": "Your Name <your.email@example.com>",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/your-org/webrtc-client.git"
-  },
-  "peerDependencies": {
-    "livekit-client": "^2.15.2"
-  },
-  "devDependencies": {
-    "livekit-client": "^2.15.2",
-    "livekit-server-sdk": "^2.13.1",
-    "typescript": "^5.8.3",
-    "ts-node": "^10.9.2",
-    "@types/node": "^24.0.13"
-  },
-  "engines": {
-    "node": ">=16.0.0"
-  }
-}
-```
+## Creating a Release
 
-## Publishing Steps
-
-1. **Update package.json** with the configuration above
-2. **Choose a unique package name**:
-   - Check availability: `npm search @your-org/webrtc-client`
-   - Or use unscoped name: `webrtc-client-yourname`
-
-3. **Build the project**:
+1. **Update version in package.json**:
    ```bash
-   npm run build
+   npm version patch  # for bug fixes
+   npm version minor  # for new features
+   npm version major  # for breaking changes
    ```
 
-4. **Test the package**:
+2. **Push the version tag**:
    ```bash
-   npm test
+   git push origin main --tags
    ```
 
-5. **Publish to npm**:
-   ```bash
-   npm publish --access public
-   ```
+3. **The release workflow will automatically**:
+   - Validate that the package version matches the git tag
+   - Run all tests with environment variables
+   - Build and publish to npm
+   - Create GitHub release
+   - Build and push Docker image
+   - Notify frontend repository of new version
 
-## Important Notes
+## Required Secrets
 
-- **Package Name**: Must be unique on npm registry
-- **Scoped Packages**: Use `@your-org/package-name` format
-- **Version**: Follow semantic versioning (major.minor.patch)
-- **Files**: Only `dist/` and `README.md` will be published
-- **Dependencies**: LiveKit client is a peer dependency
+The following secrets must be configured in the GitHub repository settings:
 
-## After Publishing
+### Required for Publishing
+- **`NPM_TOKEN`**: npm authentication token for publishing to registry
+  - Create at: https://www.npmjs.com/settings/tokens
+  - Type: Automation token
+  - Scope: Publish access
 
-Users can install your SDK with:
+### Required for LiveKit Integration  
+- **`LIVEKIT_API_KEY`**: LiveKit API key for integration tests
+- **`LIVEKIT_API_SECRET`**: LiveKit API secret for integration tests
+- **`LIVEKIT_URL`**: LiveKit server URL (optional, defaults to localhost)
+
+### Optional for Repository Integration
+- **`FRONTEND_TOKEN`**: GitHub token for notifying dependent repositories
+
+## Testing
+
+The release process includes comprehensive testing:
+
+### Unit Tests
+- Config utility validation
+- Logger functionality
+- RoomClient API testing
+- Factory function validation
+- Export verification
+
+### Integration Tests  
+- Real LiveKit server connection (when credentials available)
+- Mock server testing (when credentials unavailable)
+- Error handling and edge cases
+- Performance and memory validation
+
+### Environment Variable Handling
+- Tests run with mock credentials when real ones are unavailable
+- CI automatically falls back to mock values
+- Integration tests skip real connections in CI unless credentials are provided
+
+## Manual Testing (Development)
+
+For local development and testing:
+
 ```bash
-npm install @your-org/webrtc-client livekit-client
+# Run unit tests
+npm run test:unit
+
+# Run integration tests
+npm run test:integration
+
+# Run all tests with coverage
+npm run test:coverage
+
+# Build and test
+npm run build
+npm test
+
+# Legacy compatibility test
+npm run test:legacy
 ```
 
-And use it like:
-```javascript
-const { createRoomClient } = require('@your-org/webrtc-client');
-const roomClient = createRoomClient();
+## Version Management
+
+The release workflow enforces consistency between:
+- Git tag version (e.g., `v1.2.3`)
+- Package.json version (e.g., `1.2.3`)
+
+If versions don't match, the release will fail with a clear error message.
+
+## Installation for Users
+
+After a successful release, users can install the SDK:
+
+```bash
+# Latest version
+npm install @fanno/webrtc-client livekit-client
+
+# Specific version
+npm install @fanno/webrtc-client@1.2.3 livekit-client
+```
+
+## Docker Usage
+
+Docker images are also published automatically:
+
+```bash
+# Pull latest image
+docker pull ghcr.io/fanoo2/webrtc-client:latest
+
+# Pull specific version
+docker pull ghcr.io/fanoo2/webrtc-client:1.2.3
 ```
 
 ## Troubleshooting
 
-- **403 Forbidden**: Check package name availability
-- **Need Auth**: Run `npm login` first
-- **Build Errors**: Ensure TypeScript compiles without errors
-- **Missing Files**: Check the `files` array in package.json
+### Release Fails with "Version Mismatch"
+- Ensure `package.json` version matches the git tag
+- Use `npm version` command to keep them in sync
+
+### Tests Fail in CI
+- Check if LiveKit credentials are valid
+- Review test logs for specific failures
+- Tests should pass even without real LiveKit credentials
+
+### NPM Publish Fails
+- Verify `NPM_TOKEN` secret is valid and has publish access
+- Check if package name is available on npm registry
+- Ensure package version hasn't been published already
+
+### Bundle Size Exceeded
+- Review bundle size report in CI logs
+- Optimize dependencies or code to reduce bundle size
+- Current limit: 50KB for both CJS and ESM bundles
+
+## Support
+
+For questions about the release process or troubleshooting:
+1. Check GitHub Actions logs for detailed error messages
+2. Review test outputs in the CI workflow
+3. Verify all required secrets are properly configured
