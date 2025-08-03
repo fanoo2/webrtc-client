@@ -130,7 +130,7 @@ function testHelmLint() {
   console.log('Testing Helm lint...');
   
   try {
-    const result = execSync(`helm lint ${chartPath}`, { encoding: 'utf8' });
+    const result = execFileSync('helm', ['lint', chartPath], { encoding: 'utf8' });
     if (!result.includes('0 chart(s) failed')) {
       console.error('❌ Helm lint failed');
       console.error(result);
