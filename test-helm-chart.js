@@ -5,15 +5,24 @@
  * Tests that the chart renders correctly with the expected environment variables
  */
 
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 const path = require('path');
 
 const chartPath = path.join(__dirname, 'helm', 'webrtc-client-sdk');
 
 function runHelmTemplate(args = '') {
   try {
-    const cmd = `helm template test-release ${chartPath} --values ${chartPath}/values.yaml ${args}`;
-    return execSync(cmd, { encoding: 'utf8' });
+    // Split args string into array, but only if non-empty
+    const extraArgs = args ? args.split(' ') : [];
+    const helmArgs = [
+      'template',
+      'test-release',
+      chartPath,
+      '--values',
+      `${chartPath}/values.yaml`,
+      ...extraArgs
+    ];
+    return execFileSync('helm', helmArgs, { encoding: 'utf8' });
   } catch (error) {
     console.error('Failed to run helm template:', error.message);
     process.exit(1);
