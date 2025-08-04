@@ -1,12 +1,12 @@
 # Default values for webrtc-client-sdk.
 # This is a YAML-formatted file.
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: ghcr.io/fanoo2/webrtc-client
   pullPolicy: IfNotPresent
-  tag: ""
+  tag: "1.0.5"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -54,10 +54,10 @@ resources:
     memory: 128Mi
 
 autoscaling:
-  enabled: false
-  minReplicas: 1
+  enabled: true
+  minReplicas: 2
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
+  targetCPUUtilizationPercentage: 70
 
 nodeSelector: {}
 
@@ -71,7 +71,6 @@ env:
 
 # LiveKit configuration (should be provided via secrets)
 livekit:
-  url: "ws://localhost:7881"
-  # API key and secret should be set via secrets
-  # apiKey: ""
-  # apiSecret: ""
+  url: "wss://fanno-1s7jndnl.livekit.cloud"
+  apiKey: ""     # leave blank → will use webrtc-livekit-config/apiKey
+  apiSecret: ""  # leave blank → will use webrtc-livekit-config/apiSecret

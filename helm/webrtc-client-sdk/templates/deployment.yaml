@@ -43,19 +43,25 @@ spec:
             - name: LIVEKIT_URL
               value: {{ .Values.livekit.url }}
             {{- end }}
-            {{- if .Values.livekit.apiKey }}
+            {{- if and .Values.livekit.apiKey (ne .Values.livekit.apiKey "") }}
+            - name: LIVEKIT_API_KEY
+              value: {{ .Values.livekit.apiKey }}
+            {{- else }}
             - name: LIVEKIT_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "webrtc-client-sdk.fullname" . }}-livekit
-                  key: api-key
+                  name: webrtc-livekit-config
+                  key: apiKey
             {{- end }}
-            {{- if .Values.livekit.apiSecret }}
+            {{- if and .Values.livekit.apiSecret (ne .Values.livekit.apiSecret "") }}
+            - name: LIVEKIT_API_SECRET
+              value: {{ .Values.livekit.apiSecret }}
+            {{- else }}
             - name: LIVEKIT_API_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "webrtc-client-sdk.fullname" . }}-livekit
-                  key: api-secret
+                  name: webrtc-livekit-config
+                  key: apiSecret
             {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
