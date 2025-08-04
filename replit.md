@@ -103,6 +103,31 @@ The SDK follows a clean, modular architecture with clear separation of concerns:
 - **Environment Variables**: Sensitive configuration should be managed through environment variables
 - **Client-Side Safety**: API secrets should not be exposed in client-side builds
 
+## Recent Changes (August 2025)
+
+### GitHub Actions & CI/CD Improvements
+- **Standardized Node.js Version**: Updated both CI and Release workflows to use Node 20 only
+- **Fixed Secret Fallbacks**: Replaced invalid `${{ secrets.LIVEKIT_API_KEY || 'test-key' }}` syntax with proper conditional expressions
+- **Added Helm Validation**: Integrated `helm lint` and `helm template` validation in CI/release pipelines
+- **Version Consistency Checking**: Added automated version synchronization between package.json and Chart.yaml
+- **Streamlined CI**: Removed Node.js 16.x and 18.x from build matrix for consistency
+
+### Helm Chart Enhancements
+- **Version Synchronization**: Updated Chart.yaml version from 0.1.0 to 1.0.5 to match package.json
+- **Improved Documentation**: Enhanced README with clear LiveKit secrets requirements
+- **Production Values Template**: Added comprehensive production values example
+- **Deployment Variables Guide**: Documented all customizable parameters for scaling, resources, and networking
+- **Security Documentation**: Clarified required Kubernetes secrets for LiveKit credentials
+
+### Automation Scripts
+- **Version Consistency Tool**: Created `scripts/check-version-consistency.js` for automated version management
+- **CI Integration**: Both workflows now use the script for version validation and automatic fixes
+
+### Documentation Updates
+- **Main README**: Added explicit LiveKit credentials requirements and Kubernetes deployment guidance
+- **Helm README**: Comprehensive deployment variables documentation and production examples
+- **Security Guidelines**: Clear guidance on handling API keys in development vs production
+
 ## Project Status
 
 ### Completed Features ✅
@@ -117,6 +142,9 @@ The SDK follows a clean, modular architecture with clear separation of concerns:
 - **Documentation**: Complete README with API reference and browser usage guide
 - **Testing**: Basic SDK testing to verify functionality
 - **Security**: Browser-safe token generation via server endpoints
+- **CI/CD Pipeline**: Standardized GitHub Actions with Node 20, proper secret handling, and Helm validation
+- **Helm Deployment**: Production-ready Helm chart with comprehensive configuration options
+- **Version Management**: Automated synchronization between package.json and Helm chart versions
 
 ### Testing Results
 - **SDK Initialization**: ✅ Successfully creates room clients

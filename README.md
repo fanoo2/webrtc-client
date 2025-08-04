@@ -46,15 +46,33 @@ npm run build
 
 ## Quick Start
 
-### 1. Set up environment variables
+### 1. Set up LiveKit credentials
 
+**Important**: LiveKit API credentials are required for the SDK to function properly. You can configure them in several ways:
+
+#### Environment Variables (Development)
 Create a `.env` file or set environment variables:
 
 ```env
 LIVEKIT_API_KEY=your_api_key_here
 LIVEKIT_API_SECRET=your_api_secret_here
-LIVEKIT_URL=ws://localhost:7881  # Optional, defaults to localhost
+LIVEKIT_URL=wss://your-livekit-server.com  # Optional, defaults to localhost
 ```
+
+#### Kubernetes Secrets (Production)
+When deploying with Helm, create a Kubernetes secret:
+
+```bash
+kubectl create secret generic webrtc-livekit-config \
+  --namespace your-namespace \
+  --from-literal=apiKey="your-livekit-api-key" \
+  --from-literal=apiSecret="your-livekit-api-secret"
+```
+
+**Required Environment Variables:**
+- `LIVEKIT_API_KEY`: Your LiveKit API key (required)
+- `LIVEKIT_API_SECRET`: Your LiveKit API secret (required)  
+- `LIVEKIT_URL`: Your LiveKit server URL (optional, defaults to localhost)
 
 ### 2. Basic Usage
 

@@ -60,9 +60,16 @@ helm install my-webrtc-sdk ./helm/webrtc-client-sdk \
 
 ## Configuration
 
-### Required Configuration
+### Required LiveKit Credentials
 
-The SDK requires LiveKit credentials to function. You can configure them in several ways:
+**Important**: The WebRTC Client SDK requires LiveKit API credentials to function properly. These credentials must be provided via Kubernetes secrets for security.
+
+**Required secrets:**
+- `LIVEKIT_API_KEY`: Your LiveKit API key
+- `LIVEKIT_API_SECRET`: Your LiveKit API secret  
+- `LIVEKIT_URL`: Your LiveKit server URL
+
+You can configure them in several ways:
 
 #### Method 1: Using Kubernetes Secrets (Recommended)
 
@@ -114,6 +121,11 @@ livekit:
 | `autoscaling.minReplicas` | Min replicas for HPA | `2` |
 | `autoscaling.maxReplicas` | Max replicas for HPA | `10` |
 | `autoscaling.targetCPUUtilizationPercentage` | Target CPU for HPA | `70` |
+| `ingress.enabled` | Enable ingress | `false` |
+| `ingress.className` | Ingress class name | `""` |
+| `nodeSelector` | Node selector for pod assignment | `{}` |
+| `tolerations` | Tolerations for pod assignment | `[]` |
+| `affinity` | Affinity for pod assignment | `{}` |
 
 ### Example values.yaml
 
@@ -148,6 +160,59 @@ ingress:
   className: nginx
   hosts:
     - host: webrtc-sdk.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+```
+
+### Deployment Variables
+
+You can customize various aspects of your deployment using the following values.yaml parameters:
+
+#### Scaling Configuration
+- **`replicaCount`**: Number of pod replicas (default: 2)
+- **`autoscaling.enabled`**: Enable horizontal pod autoscaling (default: true)
+- **`autoscaling.minReplicas`**: Minimum number of replicas for HPA (default: 2)
+- **`autoscaling.maxReplicas`**: Maximum number of replicas for HPA (default: 10)
+- **`autoscaling.targetCPUUtilizationPercentage`**: CPU threshold for scaling (default: 70%)
+
+#### Resource Management
+- **`resources.requests.cpu`**: CPU request per pod (default: 100m)
+- **`resources.requests.memory`**: Memory request per pod (default: 128Mi)
+- **`resources.limits.cpu`**: CPU limit per pod (default: 500m)
+- **`resources.limits.memory`**: Memory limit per pod (default: 512Mi)
+
+#### Ingress and Networking
+- **`ingress.enabled`**: Enable external access via ingress (default: false)
+- **`ingress.className`**: Ingress controller class (e.g., nginx)
+- **`ingress.hosts`**: Configure domain names and paths
+- **`service.type`**: Service type (ClusterIP, NodePort, LoadBalancer)
+- **`service.port`**: Service port (default: 3000)
+
+#### Environment Configuration
+- **`env`**: Additional environment variables
+- **`NODE_ENV`**: Node.js environment (set to production via Helm values)
+
+Example production configuration:
+```yaml
+replicaCount: 3
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 60
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: webrtc.yourdomain.com
       paths:
         - path: /
           pathType: Prefix

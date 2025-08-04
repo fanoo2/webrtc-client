@@ -12,7 +12,7 @@ jobs:
     
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]
+        node-version: [20.x]
     
     steps:
     - uses: actions/checkout@v4
@@ -33,26 +33,26 @@ jobs:
       run: npm run test:unit
       env:
         # Mock environment for testing
-        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
-        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
-        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY != '' && secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET != '' && secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL != '' && secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
         CI: true
     
     - name: Run integration tests
       run: npm run test:integration
       env:
         # Use real credentials if available, mock otherwise
-        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
-        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
-        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY != '' && secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET != '' && secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL != '' && secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
         CI: true
     
     - name: Run test coverage
       run: npm run test:coverage
       env:
-        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
-        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
-        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY != '' && secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET != '' && secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL != '' && secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
         CI: true
     
     - name: Upload coverage reports
@@ -68,9 +68,9 @@ jobs:
       run: npm run test:legacy
       env:
         # Mock environment for legacy testing
-        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY || 'test-key' }}
-        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET || 'test-secret' }}
-        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
+        LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY != '' && secrets.LIVEKIT_API_KEY || 'test-key' }}
+        LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET != '' && secrets.LIVEKIT_API_SECRET || 'test-secret' }}
+        LIVEKIT_URL: ${{ secrets.LIVEKIT_URL != '' && secrets.LIVEKIT_URL || 'ws://localhost:7881' }}
         CI: true
     
     - name: Validate bundle
@@ -108,3 +108,16 @@ jobs:
         fi
         
         echo "✓ Bundle sizes within limits"
+    
+    - name: Validate Helm Chart
+      run: |
+        # Lint the Helm chart
+        helm lint ./helm/webrtc-client-sdk
+        
+        # Test template rendering
+        helm template test-release ./helm/webrtc-client-sdk --dry-run
+        
+        echo "✓ Helm chart validation passed"
+    
+    - name: Check version consistency
+      run: node scripts/check-version-consistency.js --fix

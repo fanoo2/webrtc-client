@@ -59,7 +59,8 @@
     "access": "public"
   },
   "directories": {
-    "example": "examples"
+    "example": "examples",
+    "test": "tests"
   },
   "dependencies": {
     "acorn": "^8.15.0",
