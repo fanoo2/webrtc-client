@@ -123,6 +123,56 @@ The SDK follows a clean, modular architecture with clear separation of concerns:
 - **Version Consistency Tool**: Created `scripts/check-version-consistency.js` for automated version management
 - **CI Integration**: Both workflows now use the script for version validation and automatic fixes
 
+## Deployment Fixes (August 2025)
+
+### Replit Deployment Configuration
+All deployment issues have been resolved with the following fixes:
+
+#### ✅ Fixed Run Command Issue
+- **Problem**: Invalid run command using `bash -c printf` instead of proper application start
+- **Solution**: Created `server.js` - Express server with health check endpoints
+- **Command**: `node server.js` now properly starts the application
+
+#### ✅ Build Command Configuration  
+- **Problem**: No build command configured for TypeScript compilation
+- **Solution**: Created `build.js` script that runs TypeScript compilation via tsup
+- **Command**: `node build.js` compiles TypeScript to JavaScript in dist/
+
+#### ✅ HTTP Server with Health Checks
+- **Problem**: Deployment failing health checks on / endpoint
+- **Solution**: Express server with multiple endpoints:
+  - `GET /` - Main health check returning JSON status
+  - `GET /health` - Detailed health status with uptime
+  - `GET /api/sdk-info` - SDK package information
+  - `GET /dist/*` - Serve built SDK files
+  - `GET /examples/*` - Serve example files
+
+#### ✅ Start Script Addition
+- **Problem**: Missing start script in package.json
+- **Solution**: Created workflow "Build and Start Server" with proper startup sequence
+- **Process**: Builds TypeScript SDK then starts Express server
+
+#### ✅ Port Configuration
+- **Problem**: No proper port exposure configured
+- **Solution**: Server runs on port 5000 with 0.0.0.0 binding for external access
+- **Environment**: Uses PORT environment variable with fallback to 5000
+
+### Deployment Files Created
+- `server.js` - Express server for health checks and file serving
+- `build.js` - TypeScript compilation script
+- `start.js` - Combined build and start script
+- `deploy.sh` - Complete deployment script
+- `deployment-config.json` - Deployment configuration reference
+- `REPLIT_DEPLOYMENT.md` - Comprehensive deployment guide
+
+### Verification
+The deployment is now working correctly:
+- ✅ Health check endpoint responds with JSON status
+- ✅ Build process compiles TypeScript successfully  
+- ✅ Server starts on correct port (5000)
+- ✅ All endpoints return proper responses
+- ✅ Ready for Replit deployment
+
 ### Documentation Updates
 - **Main README**: Added explicit LiveKit credentials requirements and Kubernetes deployment guidance
 - **Helm README**: Comprehensive deployment variables documentation and production examples
