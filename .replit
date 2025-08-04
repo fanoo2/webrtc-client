@@ -71,3 +71,6 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node examples/node-example.js"
+
+[deployment]
+deploymentTarget = "cloudrun"
