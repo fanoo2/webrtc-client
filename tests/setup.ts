@@ -2,7 +2,7 @@
 import { jest } from '@jest/globals';
 
 // Mock console methods to reduce noise during tests
-const originalConsole = global.console;
+const _originalConsole = global.console;
 
 // Store original environment variables
 const originalEnv = process.env;

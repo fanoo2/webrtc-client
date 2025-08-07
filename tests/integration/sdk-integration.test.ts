@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import { createRoomClientWithConfig } from '../../src/client/RoomClient';
 import { Logger } from '../../src/utils/logger';
 
@@ -210,7 +210,7 @@ describe('Integration Tests', () => {
 
       // Verify all clients are created and independent
       expect(clients).toHaveLength(10);
-      clients.forEach((client, index) => {
+      clients.forEach((client, _index) => {
         expect(client).toBeDefined();
         expect(client.getConnectionStatus()).toBe('disconnected');
       });

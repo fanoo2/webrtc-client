@@ -27,7 +27,7 @@ export class Room {
   
   private eventHandlers = new Map<string, Function[]>();
 
-  constructor(options?: any) {
+  constructor(_options?: any) {
     // Mock constructor
   }
 
@@ -43,7 +43,7 @@ export class Room {
     handlers.forEach(handler => handler(...args));
   }
 
-  async connect(url: string, token: string, options?: any) {
+  async connect(_url: string, _token: string, _options?: any) {
     this.state = ConnectionState.Connected;
     this.emit(RoomEvent.Connected);
   }

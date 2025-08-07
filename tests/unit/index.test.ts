@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import { describe, test, expect, beforeEach, jest } from '@jest/globals';
 
 // Mock the dependencies before importing the main module
 jest.mock('../../src/client/RoomClient');

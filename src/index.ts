@@ -1,11 +1,11 @@
 // Re-export everything from client
-export * from "./client/RoomClient";
+export * from './client/RoomClient';
 
 // Re-export configuration utilities  
-export * from "./utils/config";
+export * from './utils/config';
 
 // Re-export specific factory functions for convenience
-export { createRoomClient, createRoomClientWithConfig } from "./client/RoomClient";
+export { createRoomClient, createRoomClientWithConfig } from './client/RoomClient';
 
 // Re-export types for consumers
 export type { 
