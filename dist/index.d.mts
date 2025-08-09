@@ -1,5 +1,5 @@
 import * as livekit_client from 'livekit-client';
-import { Room, RoomOptions, RoomConnectOptions, ConnectionState } from 'livekit-client';
+import { Room, RoomOptions, RoomConnectOptions } from 'livekit-client';
 
 /**
  * Configuration options for creating a room client
@@ -77,7 +77,7 @@ declare class RoomClient extends Room implements LiveKitRoom {
     getRoomInfo(): {
         name: string;
         participantCount: number;
-        connectionState: ConnectionState;
+        connectionState: livekit_client.ConnectionState;
         connectionStatus: "connected" | "connecting" | "disconnected";
         metadata: string | undefined;
     };

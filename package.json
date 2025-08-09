@@ -9,11 +9,14 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
+    "lint": "eslint src tests --ext .ts",
+    "lint:fix": "eslint src tests --ext .ts --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:unit": "jest tests/unit",
     "test:integration": "jest tests/integration",
+    "test:smoke": "node tests/smoke/smoke-test.js",
     "test:legacy": "node test-sdk.js",
     "prepublishOnly": "npm run build",
     "build:watch": "tsup --watch",
@@ -42,9 +45,13 @@
     "livekit-client": "^2.15.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@jest/globals": "^30.0.5",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.32.0",
     "jest": "^30.0.5",
     "livekit-client": "^2.15.4",
     "livekit-server-sdk": "^2.13.1",

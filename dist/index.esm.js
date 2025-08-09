@@ -235,7 +235,7 @@ var RoomClient = class extends Room {
         canPublishData: true
       });
       return token.toJwt();
-    } catch (error) {
+    } catch {
       Logger.warn("Using fallback token generation - implement server-side token generation for production");
       const payload = {
         iss: this.config.apiKey,

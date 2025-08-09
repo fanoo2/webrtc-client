@@ -2,10 +2,10 @@ import {
   Room, 
   RoomOptions, 
   RoomConnectOptions, 
-  ConnectionState,
+  // ConnectionState, // Unused import
   RoomEvent,
   RemoteParticipant,
-  LocalParticipant
+  // LocalParticipant // Unused import
 } from 'livekit-client';
 import { LiveKitRoom, RoomConnectionParams, RoomClientConfig } from '../types/index';
 import { Logger } from '../utils/logger';
@@ -153,7 +153,7 @@ export class RoomClient extends Room implements LiveKitRoom {
 
     try {
       // Guard server-side imports - only load livekit-server-sdk in Node.js environments
-      if (typeof window !== "undefined") {
+      if (typeof window !== 'undefined') {
         throw new Error('Server-side token generation is not available in browser environments. Please provide a tokenProvider function in your config that calls your server endpoint.');
       }
       
@@ -175,7 +175,7 @@ export class RoomClient extends Room implements LiveKitRoom {
       });
 
       return token.toJwt();
-    } catch (error) {
+    } catch {
       // Fallback: Return a basic token structure
       // This should be replaced with proper server-side token generation
       Logger.warn('Using fallback token generation - implement server-side token generation for production');
